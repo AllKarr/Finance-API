@@ -1,9 +1,19 @@
 import express from "express";
-import { getTransactions, createTransaction } from "../controllers/transactionController";
+import {
+  getTransactions,
+  createTransaction,
+  getTransactionById,
+  updateTransaction,
+  deleteTransaction,
+} from "../controllers/transactionController";
 
 const router = express.Router();
 
-router.get("/", getTransactions);
-router.post("/", createTransaction);
+// CRUD routes for transactions
+router.get("/", getTransactions); // Get all transactions
+router.post("/", createTransaction); // Create transaction
+router.get("/:id", getTransactionById); // Get by ID
+router.put("/:id", updateTransaction); // Update transaction
+router.delete("/:id", deleteTransaction); // Delete transaction
 
 export default router;

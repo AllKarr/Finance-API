@@ -1,20 +1,24 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import connectDB from "./config/db";
-import routes from "./routes";
-import { errorHandler } from "./middleware/errorMiddleware";
+import mongoose from "mongoose";
+import transactionRoutes from "./routes/transactionRoutes";
 
 dotenv.config();
-connectDB();
 
 const app = express();
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/v1", routes);
+// Routes
+app.use("/api/transactions", transactionRoutes); // Register transaction routes
 
-app.use(errorHandler);
+// Database Connection
+mongoose
+  .connect(process.env.MONGO_URI as string)
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.log("Database connection error:", err));
 
 export default app;
