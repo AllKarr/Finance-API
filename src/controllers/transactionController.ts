@@ -65,3 +65,27 @@ export const deleteTransaction = async (req: Request, res: Response): Promise<vo
     res.status(500).json({ message: "Failed to delete transaction" });
   }
 };
+
+// Get transactions by category
+export const getTransactionsByCategory = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { category } = req.params;
+      const transactions = await Transaction.find({ category });
+      res.json(transactions);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching transactions by category" });
+    }
+  };
+  
+  // Get average spending per category
+  export const getAverageSpendingPerCategory = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const result = await Transaction.aggregate([
+        { $match: { type: "expense" } }, // Only consider expenses
+        { $group: { _id: "$category", avgSpending: { $avg: "$amount" } } },
+      ]);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ message: "Error calculating average spending per category" });
+    }
+  };
