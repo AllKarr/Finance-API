@@ -63,3 +63,32 @@ export const deleteBudget = async (req: Request, res: Response): Promise<void> =
     res.status(500).json({ message: "Failed to delete budget" });
   }
 };
+
+// Get budgets by category
+export const getBudgetsByCategory = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { category } = req.params;
+      const budgets = await Budget.find({ category });
+      res.json(budgets);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching budgets by category" });
+    }
+  };
+  
+  // Get monthly budget summary (per category)
+  export const getMonthlyBudgetSummary = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const summary = await Budget.aggregate([
+        { 
+          $group: { 
+            _id: { month: { $month: "$createdAt" }, category: "$category" }, 
+            totalBudget: { $sum: "$limit" } 
+          } 
+        },
+        { $sort: { "_id.month": 1 } }
+      ]);
+      res.json(summary);
+    } catch (error) {
+      res.status(500).json({ message: "Error generating budget summary" });
+    }
+  };
