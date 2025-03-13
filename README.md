@@ -89,7 +89,6 @@ curl -X POST https://finance-api-1.onrender.com/api/auth/login \ -H "Content-Typ
 ```json
  { "message": "Login successful", "apiKey": "654321fedcba" }
 ```
-**If your API regenerates keys on login, use the new `apiKey`.**
 
 ---
 
@@ -111,7 +110,7 @@ curl -X GET https://finance-api-1.onrender.com/api/auth/user \ -H "Authorization
 ### 4️⃣ Logout 
 | Method | Endpoint | Description | 
 |--------|----------|-------------| 
-| **POST** | `/auth/logout` | Log out and invalidate API key |
+| **POST** | `/auth/logout` | Log out |
 
 **Request:** 
 ```sh
@@ -120,7 +119,7 @@ curl -X GET https://finance-api-1.onrender.com/api/auth/user \ -H "Authorization
 
 **Response:** 
 ```json
- { "message": "Logged out successfully" } 
+ { "message": "Logged out successfully, API key remains valid for future logins." } 
 ```
 
 ---
