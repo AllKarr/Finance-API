@@ -53,6 +53,78 @@ The API is deployed on Render:
 
 ---
 
+## 🔑 Authentication
+ 
+ This API uses **API keys** for authentication. Users must register to receive an API key, which must be included in the `Authorization` header of every request.
+
+### 1️⃣ Register a New User
+| Method | Endpoint | Description | 
+|--------|----------|-------------| 
+| **POST** | `/auth/register` | Register a new user |
+
+**Request:** 
+```sh
+ curl -X POST https://finance-api-1.onrender.com/api/auth/register \ -H "Content-Type: application/json" \ -d '{"username": "testuser", "email": "test@example.com", "password": "testpassword"}' 
+```
+
+**Response:** 
+```json
+ { "message": "User registered", "apiKey": "123456abcdef" } 
+``` 
+**Save the `apiKey`, you’ll need it for authentication!**
+
+---
+
+### 2️⃣ Log In 
+| Method | Endpoint | Description | 
+|--------|----------|-------------| 
+| **POST** | `/auth/login` | Log in and get API key |
+
+**Request:** 
+```sh
+curl -X POST https://finance-api-1.onrender.com/api/auth/login \ -H "Content-Type: application/json" \ -d '{"username": "testuser", "password": "testpassword"}'
+```
+
+**Response:** 
+```json
+ { "message": "Login successful", "apiKey": "654321fedcba" }
+```
+**If your API regenerates keys on login, use the new `apiKey`.**
+
+---
+
+### 3️⃣ Get User Data 
+| Method | Endpoint | Description | 
+|--------|----------|-------------| 
+| **GET** | `/auth/user` | Get user details |
+
+**Request:** 
+```sh
+curl -X GET https://finance-api-1.onrender.com/api/auth/user \ -H "Authorization: Bearer YOUR_API_KEY_HERE"
+```
+
+**Response:** 
+```json { "username": "testuser" } ```
+
+---
+
+### 4️⃣ Logout 
+| Method | Endpoint | Description | 
+|--------|----------|-------------| 
+| **POST** | `/auth/logout` | Log out and invalidate API key |
+
+**Request:** 
+```sh
+ curl -X POST https://finance-api-1.onrender.com/api/auth/logout \ -H "Authorization: Bearer YOUR_API_KEY_HERE" 
+```
+
+**Response:** 
+```json
+ { "message": "Logged out successfully" } 
+```
+
+---
+
 ## 📌 API Endpoints
 All endpoints should be prefixed with `/api/v1`.
 
