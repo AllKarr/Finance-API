@@ -51,25 +51,22 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 // Logout User
 export const logoutUser = async (req: Request, res: Response): Promise<void> => {
     try {
-      const apiKey = req.header("Authorization"); // Get API key from headers
+      const apiKey = req.header("Authorization")?.replace("Bearer ", "");
   
       if (!apiKey) {
-        res.status(400).json({ message: "API key required" });
+        res.status(400).json({ message: "No API key provided" });
         return;
       }
   
-      const user = await User.findOneAndUpdate(
-        { apiKey }, // Find user by API key
-        { loggedOut: true }, // Mark user as logged out
-        { new: true }
-      );
+      const user = await User.findOne({ apiKey });
   
       if (!user) {
         res.status(400).json({ message: "Invalid API key" });
         return;
       }
   
-      res.json({ message: "Logged out successfully" });
+      // You could add a `loggedOut` flag or store active sessions instead
+      res.json({ message: "Logged out successfully. API key remains valid for future logins." });
     } catch (error) {
       res.status(500).json({ message: "Logout failed" });
     }
