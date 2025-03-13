@@ -4,18 +4,38 @@ import User from "../models/userModel";
 
 // Register User & Generate API Key
 export const registerUser = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { username, password } = req.body;
-    const apiKey = crypto.randomBytes(32).toString("hex"); // Generate API key
-
-    const newUser = new User({ username, password, apiKey });
-    await newUser.save();
-
-    res.status(201).json({ message: "User registered", apiKey });
-  } catch (error) {
-    res.status(400).json({ message: "Failed to register" });
-  }
-};
+    try {
+      const { username, password } = req.body;
+  
+      // Validate input
+      if (!username || !password) {
+        res.status(400).json({ message: "Username and password are required" });
+        return;
+      }
+  
+      // Check if the username already exists
+      const existingUser = await User.findOne({ username });
+      if (existingUser) {
+        res.status(400).json({ message: "Username already taken" });
+        return;
+      }
+  
+      // Generate API key
+      const apiKey = crypto.randomBytes(32).toString("hex");
+  
+      // Create and save the new user
+      const newUser = new User({ username, password, apiKey });
+      await newUser.save();
+  
+      console.log("User registered successfully:", newUser);
+  
+      res.status(201).json({ message: "User registered", apiKey });
+    } catch (error) {
+      console.error("Register error:", error);
+      res.status(500).json({ message: "Failed to register" });
+    }
+  };
+  
 
 // Login User
 export const loginUser = async (req: Request, res: Response): Promise<void> => {
