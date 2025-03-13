@@ -1,23 +1,29 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import User from "../models/userModel"; // Import User model
+import mongoose from "mongoose";
 
-export interface AuthRequest extends Request {
-  user?: string;
+// Define an interface for the authenticated request
+interface AuthRequest extends Request {
+  user?: mongoose.Document & { username: string; apiKey: string };
 }
 
-export const authenticate = (req: AuthRequest, res: Response, next: NextFunction): void => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
-
-  const token = authHeader.split(" ")[1];
+export const authenticate = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { userId: string };
-    req.user = decoded.userId;
+    const apiKey = req.header("Authorization")?.replace("Bearer ", "");
+
+    if (!apiKey) {
+      return res.status(401).json({ message: "No API key provided" });
+    }
+
+    const user = await User.findOne({ apiKey });
+
+    if (!user) {
+      return res.status(401).json({ message: "Invalid API key" });
+    }
+
+    req.user = user as mongoose.Document & { username: string; apiKey: string }; // Attach user
     next();
   } catch (error) {
-    res.status(401).json({ message: "Invalid token" });
+    res.status(500).json({ message: "Authentication failed" });
   }
 };

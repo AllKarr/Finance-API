@@ -1,11 +1,12 @@
 import express from "express";
 import { registerUser, loginUser, logoutUser, getUser } from "../controllers/authController";
+import { authenticate } from "../middleware/authMiddleware";
 
 const router = express.Router();
 
-router.post("/register", registerUser); // Register & get token
-router.post("/login", loginUser); // Login & get token
-router.post("/logout", logoutUser); // Logout & invalidate token
-router.get("/me", getUser); // Get user details
+router.post("/register", registerUser);
+router.post("/login", loginUser);
+router.post("/logout", authenticate as any, logoutUser);
+router.get("/user", authenticate as any, getUser);
 
 export default router;

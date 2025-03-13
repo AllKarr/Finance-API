@@ -1,24 +1,19 @@
 import { Request, Response } from "express";
+import crypto from "crypto"; // To generate API keys
 import User from "../models/userModel";
 
-// Register User
+// Register User & Generate API Key
 export const registerUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { username, password } = req.body;
+    const apiKey = crypto.randomBytes(32).toString("hex"); // Generate API key
 
-    const existingUser = await User.findOne({ username });
-    if (existingUser) {
-      res.status(400).json({ message: "User already exists" });
-      return;
-    }
+    const newUser = new User({ username, password, apiKey });
+    await newUser.save();
 
-    const token = Math.random().toString(36).substr(2);
-    const user = new User({ username, password, token });
-    await user.save();
-
-    res.status(201).json({ token });
+    res.status(201).json({ message: "User registered", apiKey });
   } catch (error) {
-    res.status(500).json({ message: "Registration failed" });
+    res.status(400).json({ message: "Failed to register" });
   }
 };
 
@@ -26,14 +21,14 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
 export const loginUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { username, password } = req.body;
+    const user = await User.findOne({ username });
 
-    const user = await User.findOne({ username, password });
-    if (!user) {
-      res.status(400).json({ message: "Invalid credentials" });
+    if (!user || user.password !== password) {
+      res.status(401).json({ message: "Invalid credentials" });
       return;
     }
 
-    res.json({ token: user.token });
+    res.json({ message: "Login successful", apiKey: user.apiKey });
   } catch (error) {
     res.status(500).json({ message: "Login failed" });
   }
@@ -43,13 +38,13 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 export const logoutUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const user = await User.findOneAndUpdate(
-      { token: req.header("Authorization") },
-      { token: "" },
+      { apiKey: req.header("Authorization") }, // Use API key instead of token
+      { apiKey: "" },
       { new: true }
     );
 
     if (!user) {
-      res.status(400).json({ message: "Invalid token" });
+      res.status(400).json({ message: "Invalid API key" });
       return;
     }
 
@@ -62,7 +57,7 @@ export const logoutUser = async (req: Request, res: Response): Promise<void> => 
 // Get User
 export const getUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    const user = await User.findOne({ token: req.header("Authorization") });
+    const user = await User.findOne({ apiKey: req.header("Authorization") });
 
     if (!user) {
       res.status(401).json({ message: "Unauthorized" });
