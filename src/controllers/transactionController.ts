@@ -80,13 +80,16 @@ export const getTransactionsByCategory = async (req: Request, res: Response): Pr
   // Get average spending per category
   export const getAverageSpendingPerCategory = async (req: Request, res: Response): Promise<void> => {
     try {
+      console.log("Controller Hit"); // Debugging
       const result = await Transaction.aggregate([
         { $match: { type: "expense" } },
         { $group: { _id: "$category", avgSpending: { $avg: "$amount" } } }
       ]);
+      console.log("Aggregation Result:", result); // Debugging
+  
       res.json(result);
     } catch (error) {
-      console.error("Error in getAverageSpendingPerCategory:", error); // Add this
-      res.status(500).json({ message: "Failed to fetch transaction", });
+      console.error("Error in getAverageSpendingPerCategory:", error);
+      res.status(500).json({ message: "Failed to fetch transaction" });
     }
   };
