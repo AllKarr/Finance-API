@@ -3,7 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import transactionRoutes from "./routes/transactionRoutes";
-import budgetRoutes from "./routes/budgetRoutes"; // ✅ Import budget routes
+import budgetRoutes from "./routes/budgetRoutes";
+import authRoutes from "./routes/authRoutes";
 
 dotenv.config();
 
@@ -14,8 +15,9 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use("/api/v1/transactions", transactionRoutes); // Register transaction routes
-app.use("/api/v1/budgets", budgetRoutes); // ✅ Register budget routes
+app.use("/api/v1/transactions", transactionRoutes);
+app.use("/api/v1/budgets", budgetRoutes);
+app.use("/api/v1/auth", authRoutes);
 
 // Database Connection
 mongoose
