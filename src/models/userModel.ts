@@ -1,12 +1,11 @@
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema(
-  {
+const userSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    apiKey: { type: String, unique: true, required: true } // New API Key field
-  },
-  { timestamps: true }
-);
+    apiKey: { type: String, required: true, unique: true }
+  });
+  
 
 export default mongoose.model("User", userSchema);

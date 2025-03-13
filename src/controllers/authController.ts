@@ -5,29 +5,23 @@ import User from "../models/userModel";
 // Register User & Generate API Key
 export const registerUser = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { username, password } = req.body;
+      const { username, password, email } = req.body;
   
-      // Validate input
-      if (!username || !password) {
-        res.status(400).json({ message: "Username and password are required" });
+      if (!username || !password || !email) {
+        res.status(400).json({ message: "Username, email, and password are required" });
         return;
       }
   
-      // Check if the username already exists
-      const existingUser = await User.findOne({ username });
+      const existingUser = await User.findOne({ email });
       if (existingUser) {
-        res.status(400).json({ message: "Username already taken" });
+        res.status(400).json({ message: "Email already taken" });
         return;
       }
   
-      // Generate API key
       const apiKey = crypto.randomBytes(32).toString("hex");
   
-      // Create and save the new user
-      const newUser = new User({ username, password, apiKey });
+      const newUser = new User({ username, password, email, apiKey });
       await newUser.save();
-  
-      console.log("User registered successfully:", newUser);
   
       res.status(201).json({ message: "User registered", apiKey });
     } catch (error) {
