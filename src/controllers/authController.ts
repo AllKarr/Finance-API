@@ -50,36 +50,50 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 
 // Logout User
 export const logoutUser = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const user = await User.findOneAndUpdate(
-      { apiKey: req.header("Authorization") }, // Use API key instead of token
-      { apiKey: "" },
-      { new: true }
-    );
-
-    if (!user) {
-      res.status(400).json({ message: "Invalid API key" });
-      return;
+    try {
+      const apiKey = req.header("Authorization"); // Get API key from headers
+  
+      if (!apiKey) {
+        res.status(400).json({ message: "API key required" });
+        return;
+      }
+  
+      const user = await User.findOneAndUpdate(
+        { apiKey }, // Find user by API key
+        { loggedOut: true }, // Mark user as logged out
+        { new: true }
+      );
+  
+      if (!user) {
+        res.status(400).json({ message: "Invalid API key" });
+        return;
+      }
+  
+      res.json({ message: "Logged out successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Logout failed" });
     }
-
-    res.json({ message: "Logged out successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Logout failed" });
-  }
-};
+  };
 
 // Get User
 export const getUser = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const user = await User.findOne({ apiKey: req.header("Authorization") });
-
-    if (!user) {
-      res.status(401).json({ message: "Unauthorized" });
-      return;
+    try {
+      const apiKey = req.header("Authorization");
+  
+      if (!apiKey) {
+        res.status(400).json({ message: "API key required" });
+        return;
+      }
+  
+      const user = await User.findOne({ apiKey });
+  
+      if (!user || user.loggedOut) { // Prevent access if logged out
+        res.status(401).json({ message: "Unauthorized or logged out" });
+        return;
+      }
+  
+      res.json({ username: user.username });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch user" });
     }
-
-    res.json({ username: user.username });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch user" });
-  }
-};
+  };

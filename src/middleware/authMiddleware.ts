@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 
 // Define an interface for the authenticated request
 interface AuthRequest extends Request {
-  user?: mongoose.Document & { username: string; apiKey: string };
+  user?: mongoose.Document & { username: string; apiKey: string; loggedOut: boolean };
 }
 
 export const authenticate = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -21,7 +21,11 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
       return res.status(401).json({ message: "Invalid API key" });
     }
 
-    req.user = user as mongoose.Document & { username: string; apiKey: string }; // Attach user
+    if (user.loggedOut) { // Prevent logged-out users from accessing routes
+      return res.status(403).json({ message: "User is logged out. Please log in again." });
+    }
+
+    req.user = user as mongoose.Document & { username: string; apiKey: string; loggedOut: boolean }; // Attach user
     next();
   } catch (error) {
     res.status(500).json({ message: "Authentication failed" });
