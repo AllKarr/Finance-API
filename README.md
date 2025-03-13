@@ -91,6 +91,7 @@ curl -X POST https://finance-api-1.onrender.com/api/v1/transactions \
 | **PUT** | `/budgets/:id` | Update a budget |
 | **DELETE** | `/budgets/:id` | Delete a budget |
 | **GET** | `/budgets/category/:category` | Get budgets by category |
+| **GET** | `/budgets/monthly-summary` | Get Monthly Summary per category |
 
 #### Example Requests
 **Get all budgets:**
